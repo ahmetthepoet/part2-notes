@@ -1,17 +1,15 @@
 import React from 'react'
-import Note from './components/Note'
+import Course from './Course'
 
-const App = ({ notes }) => {
+const App = ({courses}) => {
+
   return (
     <div>
-      <h1>Notes</h1>
+      <h1>Web dev ciriculum </h1>
       <ul>
-        {notes.map((note, i) => 
-          <Note key={i} note={note} />
-        )}
+      {courses.map(course => <Course key={course.id} course={course}/>)}
       </ul>
     </div>
   )
 }
-
-export default App 
+export default App
