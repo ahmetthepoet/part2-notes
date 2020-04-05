@@ -1,55 +1,85 @@
 import React, { useState } from 'react'
-import Note from './components/Note'
+import PhonebookEntry from './components/phonebookEntry'
 
 const App = (props) => {
-  const [notes, setNotes] = useState(props.notes)
-  const [newNote, setNewNote] = useState('') 
+  const [phonebookEntries, setphonebookEntries] = useState(props.phonebookEntries)
+  const [newName, setNewName] = useState('')
+  const [newPhoneNumber, setNewPhoneNumber] = useState('')
+  const [newDate, setNewDate] = useState(new Date().toISOString())
   const [showAll, setShowAll] = useState(true)
-
-  const addNote = (event) => {
-    event.preventDefault()
-    const noteObject = {
-      content: newNote,
-      date: new Date().toISOString(),
-      important: Math.random() > 0.5,
-      id: notes.length + 1,
-    }
   
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
+  const AddPhonebookEntry = (event) => {
+    event.preventDefault()
+    const newPhoneentryObj = {
+      name:newName,
+      phonenumber: [newPhoneNumber],
+      date:newDate,
+      important:Math.random() > 0.5,
+    }
+    if (phonebookEntries.filter(phonebookEntry => phonebookEntry.name === newPhoneentryObj.name).length === 0){
+      UpdatePhonebookEntry(newPhoneentryObj)
+    }else{
+      window.alert(`${newPhoneentryObj.name} is already added to phonebook`);
+    }
+
   }
 
-  const handleNoteChange = (event) => {
-    console.log(event.target.value)
-    setNewNote(event.target.value)
+
+  const UpdatePhonebookEntry = (props) => {
+    setphonebookEntries (phonebookEntries.concat(props))
+    setNewName('')
+    setNewDate(new Date().toISOString())
+    setNewPhoneNumber('')
+  }
+ 
+  const phoneEntriesToShow = showAll ? phonebookEntries : phonebookEntries.filter(phonebookEntry=>phonebookEntry.important)
+
+  const handleShowAll = () =>{
+    setShowAll(!showAll)
   }
 
-  const notesToShow = showAll
-    ? notes
-    : notes.filter(note => note.important)
+  const NewNameChange = (event) => {
+    
+    setNewName (event.target.value)
+
+  }
+
+  const NewPhoneNumberChange = (event) => {
+    
+    setNewPhoneNumber (event.target.value)
+
+  }
+
+
+  const NewDateChange = (event) => {
+    
+    setNewDate (event.target.value)
+
+  }
 
   return (
-    <div>
-      <h1>Notes</h1>
-      <div>
-        <button onClick={() => setShowAll(!showAll)}>
-          show {showAll ? 'important' : 'all' }
-        </button>
-      </div>      
-      <ul>
-        {notesToShow.map((note, i) => 
-          <Note key={i} note={note} />
-        )}
-      </ul>
-      <form onSubmit={addNote}>
-        <input
-          value={newNote}
-          onChange={handleNoteChange}
-        />
-        <button type="submit">save</button>
-      </form>   
-    </div>
+    <>
+<div>
+  <h1>PhoneBook</h1>
+  <button onClick = {handleShowAll}>
+  {showAll ? "showImportant" : "showall"}
+  </button>
+  <ul>
+  {phoneEntriesToShow.map((phonebookEntry, i) =>  <PhonebookEntry key = {i} entry = {phonebookEntry} />)}
+  </ul>
+  <form onSubmit={AddPhonebookEntry}>
+    <label for="name">name:</label>
+    <input value={newName} id="name" name="name" onChange = {NewNameChange}/><br/><br/>
+    <label for="phonenumber">phonenumber:</label>
+    <input value={newPhoneNumber} id="phonenumber" name="phonenumber" onChange ={NewPhoneNumberChange}/><br/><br/>
+    <label for="date">date:</label>
+    <input value={newDate} id="date" name="date" onChange = {NewDateChange}/><br/><br/>
+      <button type="submit"> save </button>
+  </form>
+</div>
+
+</>
   )
 }
 
-export default App 
+export default App
