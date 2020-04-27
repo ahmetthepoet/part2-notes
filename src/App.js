@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PhonebookEntry from './components/phonebookEntry'
+import axios from 'axios'
 
-const App = (props) => {
-  const [phonebookEntries, setphonebookEntries] = useState(props.phonebookEntries)
+const App = () => {
+  const [phonebookEntries, setphonebookEntries] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhoneNumber, setNewPhoneNumber] = useState('')
   const [newDate, setNewDate] = useState(new Date().toISOString())
   const [showAll, setShowAll] = useState(true)
-  
+  console.log (phonebookEntries)
+  const hook = () => {
+    axios.get('http://localhost:3001/phonebook').then(response => {
+      console.log (response.data)
+      setphonebookEntries(response.data)
+    })
+  }
+  useEffect(hook,[])
+
   const AddPhonebookEntry = (event) => {
     event.preventDefault()
     const newPhoneentryObj = {

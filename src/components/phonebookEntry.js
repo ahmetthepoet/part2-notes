@@ -1,6 +1,7 @@
 import React from 'react'
 
 const PhonebookEntry = ({ entry }) => {
+  console.log(entry)
   return (
     <div>
     <li>{entry.name}</li>
