@@ -1,90 +1,85 @@
-import React, { useState, useEffect } from 'react'
-import PhonebookEntry from './components/phonebookEntry'
+import React, { useState } from 'react'
+import FoundCountry from './components/FoundCountry'
+import ChosenCountry from './components/ChosenCountry'
 import axios from 'axios'
 
 const App = () => {
-  const [phonebookEntries, setphonebookEntries] = useState([])
-  const [newName, setNewName] = useState('')
-  const [newPhoneNumber, setNewPhoneNumber] = useState('')
-  const [newDate, setNewDate] = useState(new Date().toISOString())
-  const [showAll, setShowAll] = useState(true)
-  console.log (phonebookEntries)
-  const hook = () => {
-    axios.get('http://localhost:3001/phonebook').then(response => {
-      console.log (response.data)
-      setphonebookEntries(response.data)
-    })
+  const [countryName, setCountryName] = useState('')
+  const [countryAvailaible, setCountryAvailaible] = useState([])
+  const [countryInfo, setCountryInfo] = useState([])
+  console.log (countryName)
+  console.log (countryAvailaible)
+
+const updateCountryInfo = (event) => {
+  event.preventDefault()
+  const countryToPull = countryName
+  getCountryInfo(countryToPull)
+
+}
+
+  const getCountryInfo = (countryToPull) => {
+    axios.get("https://restcountries.eu/rest/v2/name/"+countryToPull+"?fullText=true").then(response=>{
+      console.log(response.data)
+      if (response.data.length === 0){
+        window.alert(`${countryName} is not a country`)
+        setCountryInfo([])
+      }else{
+        addCountyInfo(response.data)
+      }
+    }).catch(error=>{
+        window.alert(`${countryName} is not a country`)
+        setCountryInfo([])
+      }
+)
+
   }
-  useEffect(hook,[])
-
-  const AddPhonebookEntry = (event) => {
-    event.preventDefault()
-    const newPhoneentryObj = {
-      name:newName,
-      phonenumber: [newPhoneNumber],
-      date:newDate,
-      important:Math.random() > 0.5,
-    }
-    if (phonebookEntries.filter(phonebookEntry => phonebookEntry.name === newPhoneentryObj.name).length === 0){
-      UpdatePhonebookEntry(newPhoneentryObj)
-    }else{
-      window.alert(`${newPhoneentryObj.name} is already added to phonebook`);
-    }
-
-  }
 
 
-  const UpdatePhonebookEntry = (props) => {
-    setphonebookEntries (phonebookEntries.concat(props))
-    setNewName('')
-    setNewDate(new Date().toISOString())
-    setNewPhoneNumber('')
+  const addCountyInfo = (props) => {
+    setCountryAvailaible([])
+    setCountryInfo(props)
   }
  
-  const phoneEntriesToShow = showAll ? phonebookEntries : phonebookEntries.filter(phonebookEntry=>phonebookEntry.important)
+  const countriesToShow = countryAvailaible.length <= 10 ? countryAvailaible : countryAvailaible.slice(0,10)
+  console.log("countrytoshow",countriesToShow)
+  const searchforCountry = (event) => {
+    setCountryName (event.target.value)
+    axios.get("https://restcountries.eu/rest/v2/name/"+ event.target.value).then(response=>{
+      console.log(response.data)
+      const availaible = response.data.map(country=>country.name)
+    setCountryAvailaible(availaible)
+  }).catch(error=>{
+    console.log("You fucked up", error)
+    setCountryAvailaible([])
+  })}
 
-  const handleShowAll = () =>{
-    setShowAll(!showAll)
-  }
-
-  const NewNameChange = (event) => {
-    
-    setNewName (event.target.value)
-
-  }
-
-  const NewPhoneNumberChange = (event) => {
-    
-    setNewPhoneNumber (event.target.value)
-
-  }
-
-
-  const NewDateChange = (event) => {
-    
-    setNewDate (event.target.value)
-
+  const onClickShowCountryInfo = (name) => {
+    setCountryName(name)
+    getCountryInfo(name)
   }
 
   return (
     <>
 <div>
-  <h1>PhoneBook</h1>
-  <button onClick = {handleShowAll}>
-  {showAll ? "showImportant" : "showall"}
-  </button>
-  <ul>
-  {phoneEntriesToShow.map((phonebookEntry, i) =>  <PhonebookEntry key = {i} entry = {phonebookEntry} />)}
-  </ul>
-  <form onSubmit={AddPhonebookEntry}>
-    <label for="name">name:</label>
-    <input value={newName} id="name" name="name" onChange = {NewNameChange}/><br/><br/>
-    <label for="phonenumber">phonenumber:</label>
-    <input value={newPhoneNumber} id="phonenumber" name="phonenumber" onChange ={NewPhoneNumberChange}/><br/><br/>
-    <label for="date">date:</label>
-    <input value={newDate} id="date" name="date" onChange = {NewDateChange}/><br/><br/>
-      <button type="submit"> save </button>
+  <h1>Country Search engine</h1>
+  <form onSubmit={updateCountryInfo}>
+    <input value={countryName} onChange ={searchforCountry}/><br/><br/>
+    <button type="submit"> search </button>
   </form>
+  <div>
+    <ul>
+      {countriesToShow.map((country, i)=><li key={i}>
+      <FoundCountry country={country} onclick={()=>{onClickShowCountryInfo(country)}}/>
+      </li>)}
+    </ul>
+  </div>
+  <div>
+  <ul>
+      {countryInfo.map((country, i)=><li key={i}>
+      <ChosenCountry countryInfo={country}/>
+      </li>)}
+    </ul>
+  </div>
 </div>
 
 </>
